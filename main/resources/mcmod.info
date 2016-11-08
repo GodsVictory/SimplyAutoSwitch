@@ -1,0 +1,16 @@
+[
+{
+  "modid": "simplyautoswitch",
+  "name": "SimplyAutoSwitch",
+  "description": "SimplyAutoSwitch",
+  "version": "0.0.2",
+  "mcversion": "1.10.2",
+  "url": "",
+  "updateUrl": "",
+  "authorList": ["Gods"],
+  "credits": "Gods",
+  "logoFile": "",
+  "screenshots": [],
+  "dependencies": []
+}
+]
