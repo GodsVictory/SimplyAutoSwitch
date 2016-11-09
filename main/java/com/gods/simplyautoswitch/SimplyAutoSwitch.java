@@ -56,18 +56,14 @@ public class SimplyAutoSwitch {
 	public void tickEvent(TickEvent.ClientTickEvent event) {
 		if (!TickEvent.Phase.START.equals(event.phase)) return;
 		if (!Client.enabled) return;
-		
 		Minecraft mc = Minecraft.getMinecraft();
 		if (!mc.inGameHasFocus || mc.isGamePaused() || mc.playerController.isInCreativeMode()) return;
-		
 		EntityPlayer player = mc.thePlayer;
-		if (null == player || player.isDead || player.isPlayerSleeping()) return;
-
+		if (player == null || player.isDead || player.isPlayerSleeping()) return;
 		World world = mc.theWorld;
-		if (null == world) return;
+		if (world == null) return;
 		
 		boolean isAttacking = mc.gameSettings.keyBindAttack.isKeyDown();
-		
 		if (!isAttacking && wasAttacking && player.inventory.currentItem != iPrevItem) {
 			player.inventory.currentItem = iPrevItem;
 			iPrevItem = -99;
@@ -76,24 +72,19 @@ public class SimplyAutoSwitch {
 			iPrevItem = player.inventory.currentItem;
 		
 		if (isAttacking && mc.objectMouseOver != null)
-			if (mc.objectMouseOver.typeOfHit == RayTraceResult.Type.BLOCK) {
-				BlockPos oPos = mc.objectMouseOver.getBlockPos();
-	    		//Block block = world.getBlockState(oPos).getBlock();
-    			SubstituteTool(world, oPos);
-			}
-			else if (mc.objectMouseOver.typeOfHit == RayTraceResult.Type.ENTITY && mc.objectMouseOver.entityHit instanceof EntityLivingBase) {
+			if (mc.objectMouseOver.typeOfHit == RayTraceResult.Type.BLOCK)
+    			SubstituteTool(world, mc.objectMouseOver.getBlockPos());
+			else if (mc.objectMouseOver.typeOfHit == RayTraceResult.Type.ENTITY && mc.objectMouseOver.entityHit instanceof EntityLivingBase)
 				SubstituteWeapon();
-			}
 		
 		wasAttacking = isAttacking;
 	}
 
 	private void SubstituteTool(World world, BlockPos oPos) {
 		try {
-			int iSubstituteTool = iPrevItem;
-			
 			Minecraft mc = Minecraft.getMinecraft();
 			ItemStack[] inventory = mc.thePlayer.inventory.mainInventory;
+			int iSubstituteTool = iPrevItem;
 
 			for (int i = 0; i < 9; i++)
 				if (i != iSubstituteTool && inventory[i] != null && Client.determineTool(inventory[iSubstituteTool], inventory[i], world, oPos))
