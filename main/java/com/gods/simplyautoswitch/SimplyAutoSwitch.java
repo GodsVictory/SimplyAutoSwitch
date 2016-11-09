@@ -82,7 +82,7 @@ public class SimplyAutoSwitch {
     			SubstituteTool(world, oPos);
 			}
 			else if (mc.objectMouseOver.typeOfHit == RayTraceResult.Type.ENTITY && mc.objectMouseOver.entityHit instanceof EntityLivingBase) {
-				SubstituteWeapon((EntityLivingBase)mc.objectMouseOver.entityHit);
+				SubstituteWeapon();
 			}
 		
 		wasAttacking = isAttacking;
@@ -95,12 +95,9 @@ public class SimplyAutoSwitch {
 			Minecraft mc = Minecraft.getMinecraft();
 			ItemStack[] inventory = mc.thePlayer.inventory.mainInventory;
 
-			for (int i = 0; i < 9; i++) {
-				if (i == iSubstituteTool) continue;
-				
-				if (inventory[i] != null && Client.determineTool(inventory[iSubstituteTool], inventory[i], world, oPos))
+			for (int i = 0; i < 9; i++)
+				if (i != iSubstituteTool && inventory[i] != null && Client.determineTool(inventory[iSubstituteTool], inventory[i], world, oPos))
 					iSubstituteTool = i;
-			}
 			
 			if (mc.thePlayer.inventory.currentItem != iSubstituteTool) {
 				mc.thePlayer.inventory.currentItem = iSubstituteTool;
@@ -112,19 +109,16 @@ public class SimplyAutoSwitch {
 		}
 	}
 	
-	private void SubstituteWeapon(EntityLivingBase entity) {
+	private void SubstituteWeapon() {
 		try {
 			Minecraft mc = Minecraft.getMinecraft();
 			ItemStack[] inventory = mc.thePlayer.inventory.mainInventory;
 			int iSubstituteWeapon = iPrevItem;
 
-			for (int i = 0; i < 9; i++) {
-				if (i == iSubstituteWeapon) continue;
-				if (inventory[i] == null) continue;
-				if (inventory[i].getDisplayName().toLowerCase().contains("sword")) {
-					iSubstituteWeapon = i;
-				}
-			}
+			for (int i = 0; i < 9; i++)
+				if (i != iSubstituteWeapon && inventory[i] != null)
+					if (Client.determineWeapon(inventory[iSubstituteWeapon], inventory[i]))
+						iSubstituteWeapon = i;
 
 			if (mc.thePlayer.inventory.currentItem != iSubstituteWeapon) {
 				mc.thePlayer.inventory.currentItem = iSubstituteWeapon;

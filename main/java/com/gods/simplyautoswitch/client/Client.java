@@ -3,11 +3,10 @@ package com.gods.simplyautoswitch.client;
 import net.minecraft.block.Block;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.client.Minecraft;
-import net.minecraft.enchantment.EnchantmentHelper;
-import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.entity.SharedMonsterAttributes;
+import net.minecraft.entity.ai.attributes.AttributeModifier;
 import net.minecraft.init.Blocks;
-import net.minecraft.init.MobEffects;
+import net.minecraft.inventory.EntityEquipmentSlot;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
@@ -56,29 +55,14 @@ public class Client {
 		return (itemstack != null && itemstack.getItem().isDamageable());
 	}
 	
-	public static double getVanillaStackDamage(ItemStack itemStack, EntityLivingBase entity) {
-		System.out.println(mc.thePlayer.getEntityAttribute(SharedMonsterAttributes.ATTACK_DAMAGE).getAttributeValue());
+	public static double getVanillaStackDamage(ItemStack itemStack) {
 		ChangeHeldItem(itemStack);
-		
-		double attackDamage = mc.thePlayer.getEntityAttribute(SharedMonsterAttributes.ATTACK_DAMAGE).getAttributeValue();
-		double enchantModifier = EnchantmentHelper.getModifierForCreature(itemStack, entity.getCreatureAttribute());
-
-		if (attackDamage > 0.0D || enchantModifier > 0.0D) {
-			boolean isCritical = mc.thePlayer.fallDistance > 0.0F &&
-								!mc.thePlayer.onGround &&
-								!mc.thePlayer.isOnLadder() &&
-								!mc.thePlayer.isInWater() &&
-								!mc.thePlayer.isPotionActive(MobEffects.BLINDNESS) &&
-								 mc.thePlayer.getRidingEntity() == null;
-
-			if (isCritical && attackDamage > 0) attackDamage *= 1.5D;
-
-			attackDamage += enchantModifier;
-		}
-		
-		RestoreHeldItem();
-		
-		return attackDamage;
+		double damage = 1;
+		if (itemStack != null)
+			for (AttributeModifier modifier : mc.thePlayer.getHeldItemMainhand().getAttributeModifiers(EntityEquipmentSlot.MAINHAND).get(SharedMonsterAttributes.ATTACK_DAMAGE.getAttributeUnlocalizedName()))
+				damage += modifier.getAmount();
+		RestoreHeldItem();	
+		return damage;
 	}
 	
 	public static boolean determineTool(ItemStack CurrentTool, ItemStack CompareTool, World world, BlockPos oPos) {
@@ -100,23 +84,21 @@ public class Client {
 		boolean compareToolDamageable = isItemStackDamageable(CompareTool);
 		
 		if (currentToolDamageable && !compareToolDamageable && compareDigSpeed >= currentDigSpeed) return true;
-		else if (compareDigSpeed >= currentDigSpeed) return true;
+		else if (compareDigSpeed > currentDigSpeed) return true;
 		else if (compareDigSpeed < currentDigSpeed) return false;
 		return false;
 	}
 	
-	public static boolean determineWeapon(ItemStack CurrentWeapon, ItemStack CompareWeapon, EntityLivingBase entity) {
-
-
-		double currentWeaponDamage = Client.getVanillaStackDamage(CurrentWeapon, entity);
-		double compareWeaponDamage = Client.getVanillaStackDamage(CompareWeapon, entity);
-		//System.out.println(currentWeaponDamage + " " + compareWeaponDamage);
-
-	
-		if (compareWeaponDamage > currentWeaponDamage) return true;
+	public static boolean determineWeapon(ItemStack CurrentWeapon, ItemStack CompareWeapon) {
+		double currentWeaponDamage = Client.getVanillaStackDamage(CurrentWeapon);
+		double compareWeaponDamage = Client.getVanillaStackDamage(CompareWeapon);
+		
+		boolean currentWeaponDamageable = isItemStackDamageable(CurrentWeapon);
+		boolean compareWeaponDamageable = isItemStackDamageable(CompareWeapon);
+		
+		if (currentWeaponDamageable && !compareWeaponDamageable && compareWeaponDamage >= currentWeaponDamage) return true;
+		else if (compareWeaponDamage > currentWeaponDamage) return true;
 		else if (compareWeaponDamage < currentWeaponDamage) return false;
-
-
 		return false;
 	}
 	
