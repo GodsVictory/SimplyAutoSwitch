@@ -6,8 +6,9 @@ import org.lwjgl.input.Keyboard;
 
 public class KeyBindings {
 	public static KeyBinding autoSwitch;
+
 	public static void init() {
-		autoSwitch = new KeyBinding("Toggle", Keyboard.KEY_BACKSLASH, "SimplyAutoSwitch");
+		autoSwitch = new KeyBinding("key_autoswitch.toggle", Keyboard.KEY_BACKSLASH, "key.categories.SimplyAutoSwitch");
 		ClientRegistry.registerKeyBinding(autoSwitch);
 	}
 }

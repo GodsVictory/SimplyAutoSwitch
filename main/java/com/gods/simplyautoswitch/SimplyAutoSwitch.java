@@ -26,7 +26,7 @@ import net.minecraftforge.fml.relauncher.Side;
 public class SimplyAutoSwitch {
     public static final String MODID = "simplyautoswitch";
     public static final String NAME = "simplyautoswitch";
-    public static final String VERSION = "0.0.1";
+    public static final String VERSION = "0.0.4";
 	
     public static FMLEventChannel eventChannel;
 	public static final String ChannelName = MODID.substring(0, (MODID.length() < 20 ? MODID.length() : 20));
