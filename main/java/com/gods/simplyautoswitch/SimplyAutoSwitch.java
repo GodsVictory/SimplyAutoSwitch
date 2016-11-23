@@ -5,7 +5,6 @@ import com.gods.simplyautoswitch.client.KeyBindings;
 import com.gods.simplyautoswitch.client.KeyInputHandler;
 import net.minecraft.client.Minecraft;
 import net.minecraft.entity.EntityLivingBase;
-import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.RayTraceResult;
@@ -24,19 +23,20 @@ import net.minecraftforge.fml.relauncher.Side;
 
 @Mod(modid = SimplyAutoSwitch.MODID, version = SimplyAutoSwitch.VERSION, name = SimplyAutoSwitch.NAME)
 public class SimplyAutoSwitch {
-    public static final String MODID = "simplyautoswitch";
-    public static final String NAME = "simplyautoswitch";
-    public static final String VERSION = "0.0.4";
-	
-    public static FMLEventChannel eventChannel;
+	public static final String MODID = "simplyautoswitch";
+	public static final String NAME = "simplyautoswitch";
+	public static final String VERSION = "0.0.5";
+
+	public static FMLEventChannel eventChannel;
 	public static final String ChannelName = MODID.substring(0, (MODID.length() < 20 ? MODID.length() : 20));
-    
-    private static boolean wasAttacking = false;
+
+	private static boolean wasAttacking = false;
 	private static int iPrevItem = -99;
-    
+	public static boolean enabled = true;
+
 	@Mod.Instance(MODID)
 	public static SimplyAutoSwitch instance;
-	
+
 	@Mod.EventHandler
 	public void preInit(FMLPreInitializationEvent e) {
 		if (FMLCommonHandler.instance().getSide().isClient()) {
@@ -44,40 +44,37 @@ public class SimplyAutoSwitch {
 			KeyBindings.init();
 		}
 	}
+
 	@Mod.EventHandler
 	public void init(FMLInitializationEvent event) {
 		eventChannel = NetworkRegistry.INSTANCE.newEventDrivenChannel(ChannelName);
 		eventChannel.register(this);
 		MinecraftForge.EVENT_BUS.register(this);
 	}
-	
+
 	@SubscribeEvent
 	@SideOnly(Side.CLIENT)
 	public void tickEvent(TickEvent.ClientTickEvent event) {
-		if (!TickEvent.Phase.START.equals(event.phase)) return;
-		if (!Client.enabled) return;
+		if (!TickEvent.Phase.START.equals(event.phase))
+			return;
+
 		Minecraft mc = Minecraft.getMinecraft();
-		if (!mc.inGameHasFocus || mc.isGamePaused() || mc.playerController.isInCreativeMode()) return;
-		EntityPlayer player = mc.thePlayer;
-		if (player == null || player.isDead || player.isPlayerSleeping()) return;
-		World world = mc.theWorld;
-		if (world == null) return;
-		
-		boolean isAttacking = mc.gameSettings.keyBindAttack.isKeyDown();
-		if (!isAttacking && wasAttacking && player.inventory.currentItem != iPrevItem) {
-			player.inventory.currentItem = iPrevItem;
-			iPrevItem = -99;
+		if (enabled && mc.theWorld != null && mc.inGameHasFocus && !mc.playerController.isInCreativeMode()) {
+			boolean isAttacking = mc.gameSettings.keyBindAttack.isKeyDown();
+			if (!isAttacking && wasAttacking && mc.thePlayer.inventory.currentItem != iPrevItem) {
+				mc.thePlayer.inventory.currentItem = iPrevItem;
+				iPrevItem = -99;
+			} else if (isAttacking && !wasAttacking)
+				iPrevItem = mc.thePlayer.inventory.currentItem;
+
+			if (isAttacking && mc.objectMouseOver != null)
+				if (mc.objectMouseOver.typeOfHit == RayTraceResult.Type.BLOCK)
+					SubstituteTool(mc.theWorld, mc.objectMouseOver.getBlockPos());
+				else if (mc.objectMouseOver.typeOfHit == RayTraceResult.Type.ENTITY
+						&& mc.objectMouseOver.entityHit instanceof EntityLivingBase)
+					SubstituteWeapon((EntityLivingBase) mc.objectMouseOver.entityHit);
+			wasAttacking = isAttacking;
 		}
-		else if (isAttacking && !wasAttacking)
-			iPrevItem = player.inventory.currentItem;
-		
-		if (isAttacking && mc.objectMouseOver != null)
-			if (mc.objectMouseOver.typeOfHit == RayTraceResult.Type.BLOCK)
-    			SubstituteTool(world, mc.objectMouseOver.getBlockPos());
-			else if (mc.objectMouseOver.typeOfHit == RayTraceResult.Type.ENTITY && mc.objectMouseOver.entityHit instanceof EntityLivingBase)
-				SubstituteWeapon();
-		
-		wasAttacking = isAttacking;
 	}
 
 	private void SubstituteTool(World world, BlockPos oPos) {
@@ -87,20 +84,21 @@ public class SimplyAutoSwitch {
 			int iSubstituteTool = iPrevItem;
 
 			for (int i = 0; i < 9; i++)
-				if (i != iSubstituteTool && inventory[i] != null && Client.determineTool(inventory[iSubstituteTool], inventory[i], world, oPos))
+				if (i != iSubstituteTool && inventory[i] != null
+						&& Client.determineTool(inventory[iSubstituteTool], inventory[i], world, oPos))
 					iSubstituteTool = i;
-			
+
 			if (mc.thePlayer.inventory.currentItem != iSubstituteTool) {
 				mc.thePlayer.inventory.currentItem = iSubstituteTool;
 				mc.thePlayer.openContainer.detectAndSendChanges();
 			}
-			
+
 		} catch (Throwable e) {
 			System.out.println("Error switching tools - " + e.getMessage());
 		}
 	}
-	
-	private void SubstituteWeapon() {
+
+	private void SubstituteWeapon(EntityLivingBase entity) {
 		try {
 			Minecraft mc = Minecraft.getMinecraft();
 			ItemStack[] inventory = mc.thePlayer.inventory.mainInventory;
@@ -108,7 +106,7 @@ public class SimplyAutoSwitch {
 
 			for (int i = 0; i < 9; i++)
 				if (i != iSubstituteWeapon && inventory[i] != null)
-					if (Client.determineWeapon(inventory[iSubstituteWeapon], inventory[i]))
+					if (Client.determineWeapon(inventory[iSubstituteWeapon], inventory[i], entity))
 						iSubstituteWeapon = i;
 
 			if (mc.thePlayer.inventory.currentItem != iSubstituteWeapon) {
@@ -121,5 +119,5 @@ public class SimplyAutoSwitch {
 			System.out.println("Error switching weapons - " + e.getMessage());
 		}
 	}
-	
+
 }

@@ -1,5 +1,7 @@
 package com.gods.simplyautoswitch.client;
 
+import com.gods.simplyautoswitch.SimplyAutoSwitch;
+
 import net.minecraft.util.text.TextComponentString;
 import net.minecraft.util.text.TextFormatting;
 import net.minecraftforge.fml.client.FMLClientHandler;
@@ -13,9 +15,9 @@ public class KeyInputHandler {
 		// NOTE that the KeyInputEvent will NOT be posted when a gui screen such as the inventory is open
 		if (FMLClientHandler.instance().getClient().inGameHasFocus) {
 			if (KeyBindings.autoSwitch.isPressed()) {
-				Client.enabled = !Client.enabled;
+				SimplyAutoSwitch.enabled = !SimplyAutoSwitch.enabled;
 				TextComponentString msg;
-				if (Client.enabled)
+				if (SimplyAutoSwitch.enabled)
 					msg = new TextComponentString("AutoSwitch: " + TextFormatting.GREEN + "ENABLED");
 				else
 					msg = new TextComponentString("AutoSwitch: " + TextFormatting.RED + "DISABLED");
