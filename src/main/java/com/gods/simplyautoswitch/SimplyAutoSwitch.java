@@ -59,7 +59,7 @@ public class SimplyAutoSwitch {
 			return;
 
 		Minecraft mc = Minecraft.getMinecraft();
-		if (enabled && mc.world != null && mc.inGameHasFocus && !mc.playerController.isInCreativeMode()) {
+		if (enabled && mc.world != null && mc.inGameHasFocus && !mc.player.isSneaking() && !mc.playerController.isInCreativeMode()) {
 			boolean isAttacking = mc.gameSettings.keyBindAttack.isKeyDown();
 			if (!isAttacking && wasAttacking && mc.player.inventory.currentItem != iPrevItem) {
 				mc.player.inventory.currentItem = iPrevItem;
