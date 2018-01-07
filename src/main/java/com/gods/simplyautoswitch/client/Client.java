@@ -22,33 +22,33 @@ public class Client {
 	private static ItemStack prevHeldItem = null;
 
 	private static void ChangeHeldItem(ItemStack itemstack) {
-		int iSlot = mc.thePlayer.inventory.currentItem;
+		int iSlot = mc.player.inventory.currentItem;
 
-		prevHeldItem = mc.thePlayer.inventory.mainInventory[iSlot];
-		mc.thePlayer.inventory.mainInventory[iSlot] = itemstack;
+		prevHeldItem = mc.player.inventory.mainInventory[iSlot];
+		mc.player.inventory.mainInventory[iSlot] = itemstack;
 
 		if (prevHeldItem != null)
-			mc.thePlayer.getAttributeMap().removeAttributeModifiers(prevHeldItem.getAttributeModifiers(null));
+			mc.player.getAttributeMap().removeAttributeModifiers(prevHeldItem.getAttributeModifiers(null));
 		if (itemstack != null)
-			mc.thePlayer.getAttributeMap().applyAttributeModifiers(itemstack.getAttributeModifiers(null));
+			mc.player.getAttributeMap().applyAttributeModifiers(itemstack.getAttributeModifiers(null));
 	}
 
 	private static void RestoreHeldItem() {
-		int iSlot = mc.thePlayer.inventory.currentItem;
+		int iSlot = mc.player.inventory.currentItem;
 
-		ItemStack itemstack = mc.thePlayer.inventory.mainInventory[iSlot];
-		mc.thePlayer.inventory.mainInventory[iSlot] = prevHeldItem;
+		ItemStack itemstack = mc.player.inventory.mainInventory[iSlot];
+		mc.player.inventory.mainInventory[iSlot] = prevHeldItem;
 
 		if (itemstack != null)
-			mc.thePlayer.getAttributeMap().removeAttributeModifiers(itemstack.getAttributeModifiers(null));
+			mc.player.getAttributeMap().removeAttributeModifiers(itemstack.getAttributeModifiers(null));
 		if (prevHeldItem != null)
-			mc.thePlayer.getAttributeMap().applyAttributeModifiers(prevHeldItem.getAttributeModifiers(null));
+			mc.player.getAttributeMap().applyAttributeModifiers(prevHeldItem.getAttributeModifiers(null));
 	}
 
 	public static float getBlockStrength(ItemStack itemstack, World world, BlockPos oPos) {
 		IBlockState state = world.getBlockState(oPos);
 		ChangeHeldItem(itemstack);
-		float strength = state.getPlayerRelativeBlockHardness(mc.thePlayer, world, oPos);
+		float strength = state.getPlayerRelativeBlockHardness(mc.player, world, oPos);
 		RestoreHeldItem();
 		return strength;
 	}
@@ -66,9 +66,9 @@ public class Client {
 
 		IAttributeInstance damage = new AttributeMap().registerAttribute(SharedMonsterAttributes.ATTACK_DAMAGE);
 		if (itemStack != null)
-			for (AttributeModifier modifier : mc.thePlayer.getHeldItemMainhand()
+			for (AttributeModifier modifier : mc.player.getHeldItemMainhand()
 					.getAttributeModifiers(EntityEquipmentSlot.MAINHAND)
-					.get(SharedMonsterAttributes.ATTACK_DAMAGE.getAttributeUnlocalizedName()))
+					.get(SharedMonsterAttributes.ATTACK_DAMAGE.getName()))
 				damage.applyModifier(modifier);
 
 		RestoreHeldItem();

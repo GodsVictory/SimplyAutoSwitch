@@ -59,17 +59,17 @@ public class SimplyAutoSwitch {
 			return;
 
 		Minecraft mc = Minecraft.getMinecraft();
-		if (enabled && mc.theWorld != null && mc.inGameHasFocus && !mc.playerController.isInCreativeMode()) {
+		if (enabled && mc.world != null && mc.inGameHasFocus && !mc.playerController.isInCreativeMode()) {
 			boolean isAttacking = mc.gameSettings.keyBindAttack.isKeyDown();
-			if (!isAttacking && wasAttacking && mc.thePlayer.inventory.currentItem != iPrevItem) {
-				mc.thePlayer.inventory.currentItem = iPrevItem;
+			if (!isAttacking && wasAttacking && mc.player.inventory.currentItem != iPrevItem) {
+				mc.player.inventory.currentItem = iPrevItem;
 				iPrevItem = -99;
 			} else if (isAttacking && !wasAttacking)
-				iPrevItem = mc.thePlayer.inventory.currentItem;
+				iPrevItem = mc.player.inventory.currentItem;
 
 			if (isAttacking && mc.objectMouseOver != null)
 				if (mc.objectMouseOver.typeOfHit == RayTraceResult.Type.BLOCK)
-					SubstituteTool(mc.theWorld, mc.objectMouseOver.getBlockPos());
+					SubstituteTool(mc.world, mc.objectMouseOver.getBlockPos());
 				else if (mc.objectMouseOver.typeOfHit == RayTraceResult.Type.ENTITY
 						&& mc.objectMouseOver.entityHit instanceof EntityLivingBase)
 					SubstituteWeapon((EntityLivingBase) mc.objectMouseOver.entityHit);
@@ -80,7 +80,7 @@ public class SimplyAutoSwitch {
 	private void SubstituteTool(World world, BlockPos oPos) {
 		try {
 			Minecraft mc = Minecraft.getMinecraft();
-			ItemStack[] inventory = mc.thePlayer.inventory.mainInventory;
+			ItemStack[] inventory = mc.player.inventory.mainInventory;
 			int iSubstituteTool = iPrevItem;
 
 			for (int i = 0; i < 9; i++)
@@ -88,9 +88,9 @@ public class SimplyAutoSwitch {
 						&& Client.determineTool(inventory[iSubstituteTool], inventory[i], world, oPos))
 					iSubstituteTool = i;
 
-			if (mc.thePlayer.inventory.currentItem != iSubstituteTool) {
-				mc.thePlayer.inventory.currentItem = iSubstituteTool;
-				mc.thePlayer.openContainer.detectAndSendChanges();
+			if (mc.player.inventory.currentItem != iSubstituteTool) {
+				mc.player.inventory.currentItem = iSubstituteTool;
+				mc.player.openContainer.detectAndSendChanges();
 			}
 
 		} catch (Throwable e) {
@@ -101,7 +101,7 @@ public class SimplyAutoSwitch {
 	private void SubstituteWeapon(EntityLivingBase entity) {
 		try {
 			Minecraft mc = Minecraft.getMinecraft();
-			ItemStack[] inventory = mc.thePlayer.inventory.mainInventory;
+			ItemStack[] inventory = mc.player.inventory.mainInventory;
 			int iSubstituteWeapon = iPrevItem;
 
 			for (int i = 0; i < 9; i++)
@@ -109,9 +109,9 @@ public class SimplyAutoSwitch {
 					if (Client.determineWeapon(inventory[iSubstituteWeapon], inventory[i], entity))
 						iSubstituteWeapon = i;
 
-			if (mc.thePlayer.inventory.currentItem != iSubstituteWeapon) {
-				mc.thePlayer.inventory.currentItem = iSubstituteWeapon;
-				mc.thePlayer.openContainer.detectAndSendChanges();
+			if (mc.player.inventory.currentItem != iSubstituteWeapon) {
+				mc.player.inventory.currentItem = iSubstituteWeapon;
+				mc.player.openContainer.detectAndSendChanges();
 
 				iPrevItem = iSubstituteWeapon;
 			}

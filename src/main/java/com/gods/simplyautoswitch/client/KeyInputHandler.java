@@ -21,7 +21,7 @@ public class KeyInputHandler {
 					msg = new TextComponentString("AutoSwitch: " + TextFormatting.GREEN + "ENABLED");
 				else
 					msg = new TextComponentString("AutoSwitch: " + TextFormatting.RED + "DISABLED");
-				FMLClientHandler.instance().getClientPlayerEntity().addChatComponentMessage(msg);
+				FMLClientHandler.instance().getClientPlayerEntity().sendStatusMessage(msg);
 			}
 		}
 	}
